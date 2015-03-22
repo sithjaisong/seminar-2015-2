@@ -1,0 +1,167 @@
+---
+title: "Co-occurence Relationships Between Insect Pest and Disease from Farmer's Field Survey Data Revealed by Network Analysis"
+output: ioslides_presentation 
+incremental: true
+highlight: pygments
+widescreen: true
+---
+
+## Network
+<div class="columns-2">
+  ![Network](small_undirected_network_labeled.png)
+
+  - Node or Vertice
+  - Edge or link
+
+<div class="notes">
+There is no best format, everything depends on what kind of questions you want to asnwer
+</div>
+
+</div>
+
+
+## The basic concepts of Network
+
+- Networks
+- Tie Strength
+- Key Players
+
+
+## Ajacency matrix
+<div class="centered">
+```{r,  echo=FALSE, message=FALSE}
+#install.package("qgraph")
+library(qgraph)
+library(dplyr)
+adjofgroup <- read.csv(file = "C:/Users/sjaisong/Documents/GitHub/seminar-2015-2/qustionare.csv")
+knitr::kable(adjofgroup)
+adjofgroup$q1 <- ifelse(adjofgroup$q1 == "Cat", 1, 2)
+adjofgroup$q2 <- ifelse(adjofgroup$q2 == "Pencil", 1, 2)
+adjofgroup$q3 <- ifelse(adjofgroup$q3 == "Red", 1, 2)
+adjofgroup$q4 <- ifelse(adjofgroup$q4 == "Ice cream", 1, 2)
+adjofgroup$q5 <- ifelse(adjofgroup$q5 == "Apple", 1, 2)
+adjofgroup$q6 <- ifelse(adjofgroup$q6 == "Running", 1, 2)
+adjofgroup$q7 <- ifelse(adjofgroup$q7 == "Rice", 1, 2)
+adjofgroup$q8 <- ifelse(adjofgroup$q8 == "Chocolate", 1, 2)
+adjofgroup$q9 <- ifelse(adjofgroup$q9 == "Samsung", 1, 2)
+adjofgroup$q10 <- ifelse(adjofgroup$q10 == "Cake", 1, 2)
+name <- adjofgroup$Name
+adjofgroup$Name <- NULL
+mat <- t(adjofgroup)
+row.names(mat) <- NULL
+colnames(mat) <- name
+```
+</div>
+
+## Network
+<div class="centered">
+```{r, echo=FALSE, fig.height=5, fig.width=5}
+qgraph(cor(mat, method = "spearman"), layout = "spring", minimum = 0,esize = 20, vsize = 10, label.norm = TRUE, node.labels = TRUE, title = "Network of shared liking in PDM Group ")
+```
+</div>
+
+## Tie Strength
+
+<div class="centered">
+```{r, echo=FALSE, fig.height=5, fig.width=5}
+qgraph(cor(mat, method = "spearman"), layout = "spring",
+       cut = NULL, minimum = NULL, vsize = 10m, title = "Network of shared liking in PDM Group \nwith weighted links")
+```
+</div>
+
+## Key Players
+
+<div class="centered">
+```{r, echo=FALSE, fig.height= 5, fig.width=5}
+groupg <- qgraph(cor(mat, method = "spearman"), layout = "spring", vsize=c(10, 20), title= "Network of shared liking in PDM Group \nwith weighted links and weighted nodes")
+
+```
+</div>
+
+## Network Topologies
+
+<div class="columns-2">
+
+- Degree 
+- Betweeness
+- Closeness
+
+
+</div>
+
+
+## Centrality (1)
+
+<div class="centered">
+```{r, echo=FALSE}
+centralityPlot(groupg)
+```
+</div>
+
+## Centrality (2)
+
+<div class="centered">
+```{r, echo=FALSE}
+clusteringPlot(groupg)
+```
+</div>
+
+## Output Profiles 
+
+```{r}
+load(file = "C:/Users/sjaisong/Documents/GitHub/seminar-2015-2/5-1OutputProfile_subset.RData")
+tbl_df(all)
+
+```
+
+## Co-occurance Network 
+
+<div class="centered">
+
+```{r, echo=FALSE}
+
+all.spear <- 
+        cor(all, method = "spearman")
+
+q.all.spear <- qgraph(all.spear,
+            sampleSize = nrow(all),
+            graph = 'assosciation',
+            minimum = "sig",
+            maximum = 0.6,
+            # cut = 0.3 ,
+            # threshold = "locfdr",
+            bonf = TRUE,
+            #------ node
+            vsize = c(1.5,8),
+            #------edge
+            borders = FALSE,
+            vTrans = 200,
+            edge.labels = TRUE,
+            edge.label.cex = 0.5,
+            layout = "spring",
+            title = "Spearman's correlation based Network with bonf correction in South and South East Asia"
+)
+```
+</div>
+
+## Centrality of co-occureance network
+
+<div class="centered">
+```{r, echo=FALSE}
+centralityPlot(q.all.spear)
+```
+</div>
+
+## Clustering of co-occureance network (2)
+
+<div class="centered">
+```{r, echo=FALSE}
+clusteringPlot(q.all.spear)
+```
+</div>
+
+## Summary
+
+- Focused on predominant properties of nodes in network node strength, betweeness, and clustering coefficient, **brown spot** has high node strength and betweeness, but it has  moderate clustering coefficent. This indicate that **brown spot** is properly more important in passing information through the network, or between other clusters, and might be an intereesting targat for intervention.
+
+- Flase smut high clustering coefficent (Barrat' equaltion), whereas it have low strength and betweeness. This indicates that other injuies do not easily affect response of **False smut** to positive, or negative incidence, but if **False smut** is reponsed, the cluster will tend to reponses because of the high interconnectivity (high clustering coefficent)
