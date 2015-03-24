@@ -10,8 +10,14 @@ widescreen: true
 <div class="columns-2">
   ![Network](small_undirected_network_labeled.png)
 
-  - Node or Vertice
-  - Edge or link
+
+```
+What is a network ? (Easley and Kleinberg, 2011)
+
+a network is any collection of objects in which some parits of these objects
+are connected by links
+
+```
 
 <div class="notes">
 There is no best format, everything depends on what kind of questions you want to asnwer
@@ -20,19 +26,21 @@ There is no best format, everything depends on what kind of questions you want t
 </div>
 
 
-## The basic concepts of Network
+## Visualization conversion
 
-- Networks
-- Tie Strength
-- Key Players
+matrix <- network
+
+table -> matrix -> network
 
 
-## Data matrix
+## Table
 <div class="centered">
 ```{r,  echo=FALSE, message=FALSE}
 #install.package("qgraph")
 library(qgraph)
 library(dplyr)
+library(ggplot2)
+library(corrplot)
 adjofgroup <- read.csv(file = "C:/Users/sjaisong/Documents/GitHub/seminar-2015-2/qustionare.csv")
 knitr::kable(adjofgroup)
 adjofgroup$q1 <- ifelse(adjofgroup$q1 == "Cat", 1, 2)
@@ -51,23 +59,24 @@ adjofgroup$Name <- NULL
 mat <- t(adjofgroup)
 row.names(mat) <- NULL
 colnames(mat) <- name
+
 ```
 </div>
 
-## Adjancy matrix
+## Matrix
 
 ```{r}
 knitr::kable(adjofgroup1)
 ```
 
-## correlation Metrix
+## Adjacency Metrix
 
 ```{r}
 knitr::kable(cor(mat, method = "spearman"))
 ```
 
 
-## Network
+## Network of shared liking in PDM froup
 <div class="centered">
 ```{r, echo=FALSE}
 qgraph(cor(mat, method = "spearman"), layout = "spring", minimum = 0.1, esize = 20, vsize = 10, label.norm = TRUE, node.labels = TRUE, nodeNames = name, legend = TRUE, weighted = FALSE)
@@ -77,6 +86,8 @@ title("Network of shared liking in PDM Group ")
 
 ## Tie Strength
 
+#### How possible can this person be close friend in the group ?
+
 <div class="centered">
 ```{r, echo=FALSE}
 qgraph(cor(mat, method = "spearman"), layout = "spring", minimum = NULL, nodeNames = name, legend = TRUE) 
@@ -84,42 +95,31 @@ title("Network of shared liking in PDM Group \nwith weighted links")
 ```
 </div>
 
-## Key Players
 
-<div class="centered">
-```{r, echo=FALSE}
-groupg <- qgraph(cor(mat, method = "spearman"), layout = "spring", vsize=c(10, 20), nodeNames = name, legend = TRUE) 
-title("Network of shared liking in PDM Group \nwith weighted links and weighted nodes")
+## Measures
 
-```
-</div>
-
-## Network Topologies
-
+#### Centrality, Clustering coefficient..
 <div class="columns-2">
+
 - Degree 
-- Betweeness
+- Betweenness
 - Closeness
 
-![Network](small_undirected_network_labeled.png)
+![keyfeature](toponetwork.png)
 </div>
 
+## Crop Health Data
 
-## Centrality (1)
+<div class = "columns-2">
 
-<div class="centered">
-```{r, echo=FALSE}
-centralityPlot(groupg)
-```
+Crop heatlh survey
+![Survey](survey.jpg)
+
+Record 
+![form2](record.jpg)
+
 </div>
 
-## Centrality (2)
-
-<div class="centered">
-```{r, echo=FALSE}
-clusteringPlot(groupg)
-```
-</div>
 
 ## Output Profiles 
 
@@ -128,6 +128,17 @@ load(file = "C:/Users/sjaisong/Documents/GitHub/seminar-2015-2/5-1OutputProfile_
 tbl_df(all)
 
 ```
+
+## Correlation Matrix
+
+<div class="centered">
+```{r, echo=FALSE, fig.height=5, fig.width=5}
+all.spear <- cor(all, method = "spearman")
+
+corrplot(all.spear, method = "ellipse")
+
+```
+</div>
 
 ## Co-occurance Network 
 
@@ -159,7 +170,7 @@ q.all.spear <- qgraph(all.spear,
 ```
 </div>
 
-## Centrality of co-occureance network
+## Centrality of co-occurence network
 
 <div class="centered">
 ```{r, echo=FALSE}
@@ -167,11 +178,14 @@ centralityPlot(q.all.spear)
 ```
 </div>
 
-## Clustering of co-occureance network (2)
+## Clustering coeffician
 
 <div class="centered">
 ```{r, echo=FALSE}
-clusteringPlot(q.all.spear)
+clusZ <- clustZhang(all.spear)
+clusZ <- cbind(node = rownames(clusZ), clusZ)
+row.names(clusZ) <- NULL
+clusZ %>% ggplot( aes(x= clustZhang, y = reorder(node, clustZhang))) + geom_point() + xlab("clustering coefficient") + ylab("Variables") + ggtitle(" Clusering")
 ```
 </div>
 
@@ -230,8 +244,29 @@ qgraph(ws.spear.cor,
 ```
 </div>
 
+## Centrality of Co-occurence Network in dry season
+```{r, echo=FALSE}
+centralityPlot(ds.spear.cor)
+```
+ 
+
+
+## Centrality of Co-occurence Network in wet season
+```{r, echo=FALSE}
+centralityPlot(ws.spear.cor)
+```
+
+
 ## Summary
 
-- Focused on predominant properties of nodes in network node strength, betweeness, and clustering coefficient, **brown spot** has high node strength and betweeness, but it has  moderate clustering coefficent. This indicate that **brown spot** is properly more important in passing information through the network, or between other clusters, and might be an intereesting targat for intervention.
+<div class = "columns-2">
 
-- False smut high clustering coefficent (Barrat' equation), whereas it has low strength and betweeness. This indicates that other injuies do not easily affect response of **False smut** to positive, or negative incidence, but if *false smut** is reponsed, the cluster will tend to reponses because of the high interconnectivity (high clustering coefficent).
+Brown Spot
+![brownspot](brown spot.jpg)
+
+
+
+Sheat Rot
+![sheatrot](sheath rot.jpg)
+
+</div>
